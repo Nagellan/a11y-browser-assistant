@@ -8,7 +8,6 @@ document.onkeyup = (e) => {
 
 $(document).ready(() => {
 	var actions = [];
-	var isFiltered = false;
 
 	// Append the ally into the current page
 	$.get(chrome.runtime.getURL('/content.html'), (data) => {
@@ -34,7 +33,7 @@ $(document).ready(() => {
 
 	function renderAction(action, index, keys, img) {
 		var skip = "";
-		if (action.action == "search" || action.action == "goto") {
+		if (action.action == "request-action") {
 			skip = "style='display:none'";
 		}
 		if (index != 0) {
@@ -79,39 +78,6 @@ $(document).ready(() => {
 		$(".ally-extension #ally-results").html(actions.length + " results");
 	}
 
-	// Add filtered actions to the ally
-	function populateAllyFilter(actions) {
-		isFiltered = true;
-		$("#ally-extension #ally-list").html("");
-		const renderRow = (index) => {
-			const action = actions[index]
-			var keys = "";
-			if (action.keycheck) {
-				keys = "<div class='ally-keys'>";
-				action.keys.forEach(function (key) {
-					keys += "<span class='ally-shortcut'>" + key + "</span>";
-				});
-				keys += "</div>";
-			}
-			var img = "<img src='" + action.favIconUrl + "' alt='favicon' onerror='this.src=&quot;" + chrome.runtime.getURL("/assets/globe.svg") + "&quot;' class='ally-icon'>";
-			if (action.emoji) {
-				img = "<span class='ally-emoji-action'>" + action.emojiChar + "</span>"
-			}
-			if (index != 0) {
-				return $("<div class='ally-item' data-index='" + index + "' data-type='" + action.type + "' data-url='" + action.url + "'>" + img + "<div class='ally-item-details'><div class='ally-item-name'>" + action.title + "</div><div class='ally-item-desc'>" + action.url + "</div></div>" + keys + "<div class='ally-select'>Select <span class='ally-shortcut'>⏎</span></div></div>")[0]
-			} else {
-				return $("<div class='ally-item ally-item-active' data-index='" + index + "' data-type='" + action.type + "' data-url='" + action.url + "'>" + img + "<div class='ally-item-details'><div class='ally-item-name'>" + action.title + "</div><div class='ally-item-desc'>" + action.url + "</div></div>" + keys + "<div class='ally-select'>Select <span class='ally-shortcut'>⏎</span></div></div>")[0]
-			}
-		}
-		actions.length && new VirtualizedList.default($("#ally-extension #ally-list")[0], {
-			height: 400,
-			rowHeight: 60,
-			rowCount: actions.length,
-			renderRow,
-			onMount: () => $(".ally-extension #ally-results").html(actions.length + " results"),
-		});
-	}
-
 	// Open the ally
 	function openAlly() {
 		chrome.runtime.sendMessage({ request: "get-actions" }, (response) => {
@@ -145,140 +111,26 @@ $(document).ready(() => {
 		$(this).addClass("ally-item-active");
 	}
 
-	// Show a toast when an action has been performed
-	function showToast(action) {
-		$("#ally-extension-toast span").html('"' + action.title + '" has been successfully performed');
-		$("#ally-extension-toast").addClass("ally-show-toast");
-		setTimeout(() => {
-			$(".ally-show-toast").removeClass("ally-show-toast");
-		}, 3000)
-	}
-
-	// Autocomplete commands. Since they all start with different letters, it can be the default behavior
-	function checkShortHand(e, value) {
-		var el = $(".ally-extension input");
-		if (e.keyCode != 8) {
-			if (value == "/t") {
-				el.val("/tabs ")
-			} else if (value == "/b") {
-				el.val("/bookmarks ")
-			} else if (value == "/h") {
-				el.val("/history ");
-			} else if (value == "/r") {
-				el.val("/remove ");
-			} else if (value == "/a") {
-				el.val("/actions ");
-			}
-		} else {
-			if (value == "/tabs" || value == "/bookmarks" || value == "/actions" || value == "/remove" || value == "/history") {
-				el.val("");
-			}
-		}
-	}
-
-	// Add protocol
-	function addhttp(url) {
-		if (!/^(?:f|ht)tps?\:\/\//.test(url)) {
-			url = "http://" + url;
-		}
-		return url;
-	}
-
-	// Check if valid url
-	function validURL(str) {
-		var pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
-			'((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
-			'((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
-			'(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
-			'(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
-			'(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
-		return !!pattern.test(str);
-	}
-
 	// Search for an action in the ally
-	function search(e) {
+	function handleInput(e) {
 		if (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40 || e.keyCode == 13 || e.keyCode == 37) {
 			return;
 		}
-		var value = $(this).val().toLowerCase();
-		checkShortHand(e, value);
-		value = $(this).val().toLowerCase();
-		if (value.startsWith("/history")) {
-			$(".ally-item[data-index='" + actions.findIndex(x => x.action == "search") + "']").hide();
-			$(".ally-item[data-index='" + actions.findIndex(x => x.action == "goto") + "']").hide();
-			var tempvalue = value.replace("/history ", "");
-			var query = "";
-			if (tempvalue != "/history") {
-				query = value.replace("/history ", "");
-			}
-			chrome.runtime.sendMessage({ request: "search-history", query: query }, (response) => {
-				populateAllyFilter(response.history);
-			});
-		} else if (value.startsWith("/bookmarks")) {
-			$(".ally-item[data-index='" + actions.findIndex(x => x.action == "search") + "']").hide();
-			$(".ally-item[data-index='" + actions.findIndex(x => x.action == "goto") + "']").hide();
-			var tempvalue = value.replace("/bookmarks ", "");
-			if (tempvalue != "/bookmarks" && tempvalue != "") {
-				var query = value.replace("/bookmarks ", "");
-				chrome.runtime.sendMessage({ request: "search-bookmarks", query: query }, (response) => {
-					populateAllyFilter(response.bookmarks);
-				});
+
+		const value = $(this).val().toLowerCase();
+		const requestActionIndex = actions.findIndex(x => x.action == "request-action");
+
+		$(".ally-extension #ally-list .ally-item").filter(function (index) {
+			const element = $(".ally-item[data-index='" + index + "']");
+
+			if (value.length > 0) {
+				if (index === requestActionIndex) element.show();
+				else element.hide()
 			} else {
-				populateAllyFilter(actions.filter(x => x.type == "bookmark"));
+				if (index === requestActionIndex) element.hide();
+				else element.show()
 			}
-		} else {
-			if (isFiltered) {
-				populateAlly();
-				isFiltered = false;
-			}
-			$(".ally-extension #ally-list .ally-item").filter(function () {
-				if (value.startsWith("/tabs")) {
-					$(".ally-item[data-index='" + actions.findIndex(x => x.action == "search") + "']").hide();
-					$(".ally-item[data-index='" + actions.findIndex(x => x.action == "goto") + "']").hide();
-					var tempvalue = value.replace("/tabs ", "");
-					if (tempvalue == "/tabs") {
-						$(this).toggle($(this).attr("data-type") == "tab");
-					} else {
-						tempvalue = value.replace("/tabs ", "");
-						$(this).toggle(($(this).find(".ally-item-name").text().toLowerCase().indexOf(tempvalue) > -1 || $(this).find(".ally-item-desc").text().toLowerCase().indexOf(tempvalue) > -1) && $(this).attr("data-type") == "tab");
-					}
-				} else if (value.startsWith("/remove")) {
-					$(".ally-item[data-index='" + actions.findIndex(x => x.action == "search") + "']").hide();
-					$(".ally-item[data-index='" + actions.findIndex(x => x.action == "goto") + "']").hide();
-					var tempvalue = value.replace("/remove ", "")
-					if (tempvalue == "/remove") {
-						$(this).toggle($(this).attr("data-type") == "bookmark" || $(this).attr("data-type") == "tab");
-					} else {
-						tempvalue = value.replace("/remove ", "");
-						$(this).toggle(($(this).find(".ally-item-name").text().toLowerCase().indexOf(tempvalue) > -1 || $(this).find(".ally-item-desc").text().toLowerCase().indexOf(tempvalue) > -1) && ($(this).attr("data-type") == "bookmark" || $(this).attr("data-type") == "tab"));
-					}
-				} else if (value.startsWith("/actions")) {
-					$(".ally-item[data-index='" + actions.findIndex(x => x.action == "search") + "']").hide();
-					$(".ally-item[data-index='" + actions.findIndex(x => x.action == "goto") + "']").hide();
-					var tempvalue = value.replace("/actions ", "")
-					if (tempvalue == "/actions") {
-						$(this).toggle($(this).attr("data-type") == "action");
-					} else {
-						tempvalue = value.replace("/actions ", "");
-						$(this).toggle(($(this).find(".ally-item-name").text().toLowerCase().indexOf(tempvalue) > -1 || $(this).find(".ally-item-desc").text().toLowerCase().indexOf(tempvalue) > -1) && $(this).attr("data-type") == "action");
-					}
-				} else {
-					$(this).toggle($(this).find(".ally-item-name").text().toLowerCase().indexOf(value) > -1 || $(this).find(".ally-item-desc").text().toLowerCase().indexOf(value) > -1);
-					if (value == "") {
-						$(".ally-item[data-index='" + actions.findIndex(x => x.action == "search") + "']").hide();
-						$(".ally-item[data-index='" + actions.findIndex(x => x.action == "goto") + "']").hide();
-					} else if (!validURL(value)) {
-						$(".ally-item[data-index='" + actions.findIndex(x => x.action == "search") + "']").show();
-						$(".ally-item[data-index='" + actions.findIndex(x => x.action == "goto") + "']").hide();
-						$(".ally-item[data-index='" + actions.findIndex(x => x.action == "search") + "'] .ally-item-name").html('\"' + value + '\"');
-					} else {
-						$(".ally-item[data-index='" + actions.findIndex(x => x.action == "search") + "']").hide();
-						$(".ally-item[data-index='" + actions.findIndex(x => x.action == "goto") + "']").show();
-						$(".ally-item[data-index='" + actions.findIndex(x => x.action == "goto") + "'] .ally-item-name").html(value);
-					}
-				}
-			});
-		}
+		})
 
 		$(".ally-extension #ally-results").html($("#ally-extension #ally-list .ally-item:visible").length + " results");
 		$(".ally-item-active").removeClass("ally-item-active");
@@ -288,95 +140,8 @@ $(document).ready(() => {
 	// Handle actions from the ally
 	function handleAction(e) {
 		var action = actions[$(".ally-item-active").attr("data-index")];
-		closeAlly();
-		if ($(".ally-extension input").val().toLowerCase().startsWith("/remove")) {
-			chrome.runtime.sendMessage({ request: "remove", type: action.type, action: action });
-		} else if ($(".ally-extension input").val().toLowerCase().startsWith("/history")) {
-			if (e.ctrlKey || e.metaKey) {
-				window.open($(".ally-item-active").attr("data-url"));
-			} else {
-				window.open($(".ally-item-active").attr("data-url"), "_self");
-			}
-		} else if ($(".ally-extension input").val().toLowerCase().startsWith("/bookmarks")) {
-			if (e.ctrlKey || e.metaKey) {
-				window.open($(".ally-item-active").attr("data-url"));
-			} else {
-				window.open($(".ally-item-active").attr("data-url"), "_self");
-			}
-		} else {
-			chrome.runtime.sendMessage({ request: action.action, tab: action, query: $(".ally-extension input").val() });
-			switch (action.action) {
-				case "bookmark":
-					if (e.ctrlKey || e.metaKey) {
-						window.open(action.url);
-					} else {
-						window.open(action.url, "_self");
-					}
-					break;
-				case "scroll-bottom":
-					window.scrollTo(0, document.body.scrollHeight);
-					showToast(action);
-					break;
-				case "scroll-top":
-					window.scrollTo(0, 0);
-					break;
-				case "navigation":
-					if (e.ctrlKey || e.metaKey) {
-						window.open(action.url);
-					} else {
-						window.open(action.url, "_self");
-					}
-					break;
-				case "fullscreen":
-					var elem = document.documentElement;
-					elem.requestFullscreen();
-					break;
-				case "new-tab":
-					window.open("");
-					break;
-				case "email":
-					window.open("mailto:");
-					break;
-				case "url":
-					if (e.ctrlKey || e.metaKey) {
-						window.open(action.url);
-					} else {
-						window.open(action.url, "_self");
-					}
-					break;
-				case "goto":
-					if (e.ctrlKey || e.metaKey) {
-						window.open(addhttp($(".ally-extension input").val()));
-					} else {
-						window.open(addhttp($(".ally-extension input").val()), "_self");
-					}
-					break;
-				case "print":
-					window.print();
-					break;
-				case "remove-all":
-				case "remove-history":
-				case "remove-cookies":
-				case "remove-cache":
-				case "remove-local-storage":
-				case "remove-passwords":
-					showToast(action);
-					break;
-			}
-		}
-
-		// Fetch actions again
-		chrome.runtime.sendMessage({ request: "get-actions" }, (response) => {
-			actions = response.actions;
-			populateAlly();
-		});
+		chrome.runtime.sendMessage({ request: action.action, tab: action, query: $(".ally-extension input").val() });
 	}
-
-	// Customize the shortcut to open the Ally box
-	function openShortcuts() {
-		chrome.runtime.sendMessage({ request: "extensions/shortcuts" });
-	}
-
 
 	// Check which keys are down
 	var down = [];
@@ -408,21 +173,11 @@ $(document).ready(() => {
 		}
 	}).keyup((e) => {
 		if (down[18] && down[16] && down[80]) {
-			if (actions.find(x => x.action == "pin") != undefined) {
-				chrome.runtime.sendMessage({ request: "pin-tab" });
-			} else {
-				chrome.runtime.sendMessage({ request: "unpin-tab" });
-			}
 			chrome.runtime.sendMessage({ request: "get-actions" }, (response) => {
 				actions = response.actions;
 				populateAlly();
 			});
 		} else if (down[18] && down[16] && down[77]) {
-			if (actions.find(x => x.action == "mute") != undefined) {
-				chrome.runtime.sendMessage({ request: "mute-tab" });
-			} else {
-				chrome.runtime.sendMessage({ request: "unmute-tab" });
-			}
 			chrome.runtime.sendMessage({ request: "get-actions" }, (response) => {
 				actions = response.actions;
 				populateAlly();
@@ -447,9 +202,8 @@ $(document).ready(() => {
 		}
 	});
 
-	$(document).on("click", "#open-page-ally-extension-thing", openShortcuts);
 	$(document).on("mouseover", ".ally-extension .ally-item:not(.ally-item-active)", hoverItem);
-	$(document).on("keyup", ".ally-extension input", search);
+	$(document).on("keyup", ".ally-extension input", handleInput);
 	$(document).on("click", ".ally-item-active", handleAction);
 	$(document).on("click", ".ally-extension #ally-overlay", closeAlly);
 });
