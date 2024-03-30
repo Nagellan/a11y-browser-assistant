@@ -31,16 +31,9 @@ $(document).ready(() => {
 		}
 	});
 
-	function renderAction(action, index, keys, img) {
-		var skip = "";
-		if (action.action == "request-action") {
-			skip = "style='display:none'";
-		}
-		if (index != 0) {
-			$("#ally-extension #ally-list").append("<div class='ally-item' " + skip + " data-index='" + index + "' data-type='" + action.type + "'>" + img + "<div class='ally-item-details'><div class='ally-item-name'>" + action.title + "</div><div class='ally-item-desc'>" + action.desc + "</div></div>" + keys + "<div class='ally-select'>Select <span class='ally-shortcut'>⏎</span></div></div>");
-		} else {
-			$("#ally-extension #ally-list").append("<div class='ally-item ally-item-active' " + skip + " data-index='" + index + "' data-type='" + action.type + "'>" + img + "<div class='ally-item-details'><div class='ally-item-name'>" + action.title + "</div><div class='ally-item-desc'>" + action.desc + "</div></div>" + keys + "<div class='ally-select'>Select <span class='ally-shortcut'>⏎</span></div></div>");
-		}
+	function renderAction(action, index, keys, img, active = false, hidden = false) {
+		$("#ally-extension #ally-list").append(`<div class='ally-item ${active ? "ally-item-active" : ""}' ` + (hidden ? "style='display:none'" : "") + " data-index='" + index + "' data-type='" + action.type + "'>" + img + "<div class='ally-item-details'><div class='ally-item-name'>" + action.title + "</div><div class='ally-item-desc'>" + action.desc + "</div></div>" + keys + "<div class='ally-select'>Select <span class='ally-shortcut'>⏎</span></div></div>");
+
 		if (!action.emoji) {
 			var loadimg = new Image();
 			loadimg.src = action.favIconUrl;
@@ -55,6 +48,10 @@ $(document).ready(() => {
 	// Add actions to the ally
 	function populateAlly() {
 		$("#ally-extension #ally-list").html("");
+
+		let firstVisibleActionIndex = -1;
+		let hiddenActionsCount = 0;
+
 		actions.forEach((action, index) => {
 			var keys = "";
 			if (action.keycheck) {
@@ -65,17 +62,30 @@ $(document).ready(() => {
 				keys += "</div>";
 			}
 
+			let img = "<span class='ally-emoji-action'>" + action.emojiChar + "</span>";
+
 			// Check if the action has an emoji or a favicon
 			if (!action.emoji) {
-				var onload = 'if ("naturalHeight" in this) {if (this.naturalHeight + this.naturalWidth === 0) {this.onerror();return;}} else if (this.width + this.height == 0) {this.onerror();return;}';
-				var img = "<img src='" + action.favIconUrl + "' alt='favicon' onload='" + onload + "' onerror='this.src=&quot;" + chrome.runtime.getURL("/assets/globe.svg") + "&quot;' class='ally-icon'>";
-				renderAction(action, index, keys, img);
-			} else {
-				var img = "<span class='ally-emoji-action'>" + action.emojiChar + "</span>";
-				renderAction(action, index, keys, img);
+				const onload = 'if ("naturalHeight" in this) {if (this.naturalHeight + this.naturalWidth === 0) {this.onerror();return;}} else if (this.width + this.height == 0) {this.onerror();return;}';
+				img = "<img src='" + action.favIconUrl + "' alt='favicon' onload='" + onload + "' onerror='this.src=&quot;" + chrome.runtime.getURL("/assets/globe.svg") + "&quot;' class='ally-icon'>";
 			}
+
+			const hidden = action.action === 'request-action'
+			let active = false;
+
+			if (hidden) {
+				hiddenActionsCount++;
+			}
+
+			if (!hidden && firstVisibleActionIndex === -1) {
+				active = true;
+				firstVisibleActionIndex = index;
+			}
+
+			renderAction(action, index, keys, img, active, hidden);
 		})
-		$(".ally-extension #ally-results").html(actions.length + " results");
+
+		$(".ally-extension #ally-results").html(actions.length - hiddenActionsCount + " results");
 	}
 
 	// Open the ally
