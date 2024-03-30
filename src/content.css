@@ -1,36 +1,36 @@
 /* Scrollbar size */
-.omni-extension ::-webkit-scrollbar {
+.ally-extension ::-webkit-scrollbar {
 	width: 10px;
 	height: 10px;
 }
 
-.omni-extension ::-webkit-scrollbar-thumb {
+.ally-extension ::-webkit-scrollbar-thumb {
 	background-color: rgba(127, 127, 127, 0.6);
 	background-clip: padding-box;
 	border: 2px solid transparent;
 	border-radius: 5px;
 }
 
-.omni-extension ::-webkit-scrollbar-thumb:vertical:hover,
-.omni-extension ::-webkit-scrollbar-thumb:horizontal:hover {
+.ally-extension ::-webkit-scrollbar-thumb:vertical:hover,
+.ally-extension ::-webkit-scrollbar-thumb:horizontal:hover {
 	background-color: rgb(110, 110, 110);
 }
 
-.omni-extension ::-webkit-scrollbar-track {
+.ally-extension ::-webkit-scrollbar-track {
 	background-color: transparent;
 }
 
-.omni-extension ::-webkit-scrollbar-thumb:vertical:active,
-.omni-extension ::-webkit-scrollbar-thumb:horizontal:active {
+.ally-extension ::-webkit-scrollbar-thumb:vertical:active,
+.ally-extension ::-webkit-scrollbar-thumb:horizontal:active {
 	background: rgba(95, 91, 91, 1);
 }
 
-.omni-extension ::-webkit-scrollbar-corner {
+.ally-extension ::-webkit-scrollbar-corner {
 	background: none;
 }
 
 @media (prefers-color-scheme: dark) {
-	.omni-extension {
+	.ally-extension {
 		--background: #1e2128;
 		--border: #35373e;
 		--text: #f1f1f1;
@@ -46,7 +46,7 @@
 }
 
 @media (prefers-color-scheme: light) {
-	.omni-extension {
+	.ally-extension {
 		--background: #fafcff;
 		--border: #f2f3fb;
 		--text: #2b2d41;
@@ -89,7 +89,7 @@
 	src: url("chrome-extension://__MSG_@@extension_id__/assets/Inter-Bold.ttf");
 }
 
-.omni-extension * {
+.ally-extension * {
 	display: block;
 	width: unset;
 	box-shadow: unset;
@@ -99,16 +99,16 @@
 	border-radius: unset;
 }
 
-.omni-extension .omni-item-details * {
+.ally-extension .ally-item-details * {
 	line-height: normal;
 }
 
-.omni-extension {
+.ally-extension {
 	font-family: Inter !important;
 	z-index: 99999999999;
 }
 
-.omni-extension #omni-wrap {
+.ally-extension #ally-wrap {
 	position: fixed;
 	width: 700px;
 	border: 1px solid transparent;
@@ -124,7 +124,7 @@
 	pointer-events: all;
 }
 
-.omni-extension #omni {
+.ally-extension #ally {
 	position: absolute;
 	width: 100%;
 	background: var(--background);
@@ -138,17 +138,17 @@
 	display: block;
 }
 
-.omni-closing #omni {
+.ally-closing #ally {
 	transform: scale(0.9);
 	opacity: 0;
 }
 
-.omni-closing {
+.ally-closing {
 	pointer-events: none;
 	display: none !important;
 }
 
-.omni-extension #omni-overlay {
+.ally-extension #ally-overlay {
 	height: 100%;
 	width: 100%;
 	position: fixed;
@@ -160,11 +160,11 @@
 	transition: all 0.1s cubic-bezier(0.05, 0.03, 0.35, 1);
 }
 
-.omni-closing #omni-overlay {
+.ally-closing #ally-overlay {
 	opacity: 0 !important;
 }
 
-.omni-extension #omni-head {
+.ally-extension #ally-head {
 	height: 50px;
 	line-height: 50px;
 	width: 95%;
@@ -173,25 +173,25 @@
 	border-bottom: 1px solid var(--border);
 }
 
-.omni-extension #omni-name {
+.ally-extension #ally-name {
 	color: var(--text);
 	font-size: 12px;
 	font-weight: 600;
 	float: left;
 }
 
-.omni-extension #omni-close {
+.ally-extension #ally-close {
 	color: var(--text-3);
 	float: right;
 	font-size: 12px;
 	font-weight: 500;
 }
 
-.omni-extension #omni-close span {
+.ally-extension #ally-close span {
 	margin-left: 3px;
 }
 
-.omni-extension .omni-shortcut {
+.ally-extension .ally-shortcut {
 	display: inline-block !important;
 	font-size: 13px;
 	border-radius: 5px;
@@ -205,7 +205,7 @@
 	padding-right: 3px;
 }
 
-.omni-extension input {
+.ally-extension input {
 	background: transparent;
 	border: 0px;
 	outline: none;
@@ -227,20 +227,20 @@
 	box-shadow: none;
 }
 
-.omni-extension ::placeholder {
+.ally-extension ::placeholder {
 	color: var(--placeholder);
 	opacity: 1;
 }
 
-.omni-extension :-ms-input-placeholder {
+.ally-extension :-ms-input-placeholder {
 	color: var(--placeholder);
 }
 
-.omni-extension ::-ms-input-placeholder {
+.ally-extension ::-ms-input-placeholder {
 	color: var(--placeholder);
 }
 
-.omni-extension #omni-list {
+.ally-extension #ally-list {
 	width: 100%;
 	overflow: overlay;
 	height: 100%;
@@ -249,21 +249,21 @@
 	position: relative;
 }
 
-.omni-extension .omni-item {
+.ally-extension .ally-item {
 	height: 60px;
 	width: 100%;
 }
 
-.omni-extension .omni-item:hover {
+.ally-extension .ally-item:hover {
 	cursor: pointer;
 }
 
-.omni-extension .omni-item-active {
+.ally-extension .ally-item-active {
 	background-color: var(--select);
 	position: relative;
 }
 
-.omni-extension .omni-item-active:before {
+.ally-extension .ally-item-active:before {
 	height: 100%;
 	position: absolute;
 	display: block;
@@ -272,7 +272,7 @@
 	background-color: var(--accent);
 }
 
-.omni-extension .omni-select {
+.ally-extension .ally-select {
 	float: right;
 	vertical-align: middle;
 	color: var(--text-3);
@@ -283,15 +283,15 @@
 	margin-right: 5%;
 }
 
-.omni-extension .omni-select span {
+.ally-extension .ally-select span {
 	margin-left: 3px;
 }
 
-.omni-extension .omni-item-active .omni-select {
+.ally-extension .ally-item-active .ally-select {
 	display: block !important;
 }
 
-.omni-extension .omni-icon {
+.ally-extension .ally-icon {
 	width: 20px;
 	height: 20px;
 	margin-left: 5%;
@@ -300,7 +300,7 @@
 	margin-top: -12px;
 }
 
-.omni-extension .omni-emoji-action {
+.ally-extension .ally-emoji-action {
 	display: inline-block;
 	vertical-align: middle;
 	margin-top: -12px;
@@ -311,14 +311,14 @@
 	font-size: 18px;
 }
 
-.omni-extension .omni-item-details {
+.ally-extension .ally-item-details {
 	display: inline-block !important;
 	margin-left: 10px;
 	vertical-align: middle;
 	margin-top: 10px;
 }
 
-.omni-extension .omni-item-name {
+.ally-extension .ally-item-name {
 	color: var(--text-2);
 	font-size: 14px;
 	font-weight: 500;
@@ -328,11 +328,11 @@
 	width: 460px;
 }
 
-.omni-extension .omni-item-active .omni-item-name {
+.ally-extension .ally-item-active .ally-item-name {
 	color: var(--text) !important;
 }
 
-.omni-extension .omni-item-desc {
+.ally-extension .ally-item-desc {
 	color: var(--text-3);
 	margin-top: 5px;
 	font-size: 14px;
@@ -342,7 +342,7 @@
 	width: 460px;
 }
 
-.omni-extension #omni-footer {
+.ally-extension #ally-footer {
 	height: 45px;
 	line-height: 45px;
 	border-top: 1px solid var(--border);
@@ -351,26 +351,26 @@
 	margin-right: auto;
 }
 
-.omni-extension #omni-results {
+.ally-extension #ally-results {
 	color: var(--text-3);
 	font-size: 12px;
 	font-weight: 500;
 	float: left;
 }
 
-.omni-extension #omni-arrows {
+.ally-extension #ally-arrows {
 	color: var(--text-3);
 	font-size: 12px;
 	font-weight: 500;
 	float: right;
 }
 
-.omni-extension #omni-arrows span {
+.ally-extension #ally-arrows span {
 	margin-left: 3px;
 	margin-right: 3px;
 }
 
-.omni-extension .omni-keys {
+.ally-extension .ally-keys {
 	float: right;
 	vertical-align: middle;
 	font-weight: 500;
@@ -378,15 +378,15 @@
 	margin-right: 5%;
 }
 
-.omni-extension .omni-item-active .omni-keys {
+.ally-extension .ally-item-active .ally-keys {
 	display: none !important;
 }
 
-.omni-extension .omni-keys span {
+.ally-extension .ally-keys span {
 	margin-left: 3px;
 }
 
-#omni-extension-toast {
+#ally-extension-toast {
 	text-align: center;
 	font-family: Inter;
 	font-weight: 500;
@@ -411,14 +411,14 @@
 	z-index: 99999999;
 }
 
-#omni-extension-toast img {
+#ally-extension-toast img {
 	display: inline-block;
 	margin-right: 5px;
 	vertical-align: middle;
 	margin-bottom: 2px;
 }
 
-.omni-show-toast {
+.ally-show-toast {
 	bottom: 20px !important;
 	opacity: 1 !important;
 	visibility: visible !important;

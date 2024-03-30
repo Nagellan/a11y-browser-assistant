@@ -5,7 +5,7 @@ let newtaburl = "";
 const clearActions = () => {
 	getCurrentTab().then((response) => {
 		actions = [];
-		const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+		const isMac = navigator.userAgent.toUpperCase().indexOf('MAC') >= 0;
 		let muteaction = { title: "Mute tab", desc: "Mute the current tab", type: "action", action: "mute", emoji: true, emojiChar: "🔇", keycheck: true, keys: ['⌥', '⇧', 'M'] };
 		let pinaction = { title: "Pin tab", desc: "Pin the current tab", type: "action", action: "pin", emoji: true, emojiChar: "📌", keycheck: true, keys: ['⌥', '⇧', 'P'] };
 		if (response.mutedInfo.muted) {
@@ -119,7 +119,7 @@ const clearActions = () => {
 
 // Open on install
 chrome.runtime.onInstalled.addListener((object) => {
-	// Inject Omni on install
+	// Inject Ally on install
 	const manifest = chrome.runtime.getManifest();
 
 	const injectIntoTab = (tab) => {
@@ -171,15 +171,15 @@ chrome.runtime.onInstalled.addListener((object) => {
 
 // Check when the extension button is clicked
 chrome.action.onClicked.addListener((tab) => {
-	chrome.tabs.sendMessage(tab.id, { request: "open-omni" });
+	chrome.tabs.sendMessage(tab.id, { request: "open-ally" });
 });
 
-// Listen for the open omni shortcut
+// Listen for the open ally shortcut
 chrome.commands.onCommand.addListener((command) => {
-	if (command === "open-omni") {
+	if (command === "open-ally") {
 		getCurrentTab().then((response) => {
 			if (!response.url.includes("chrome://") && !response.url.includes("chrome.google.com")) {
-				chrome.tabs.sendMessage(response.id, { request: "open-omni" });
+				chrome.tabs.sendMessage(response.id, { request: "open-ally" });
 			} else {
 				chrome.tabs.create({
 					url: "./newtab.html"
@@ -199,7 +199,7 @@ const getCurrentTab = async () => {
 	return tab;
 }
 
-// Restore the new tab page (workaround to show Omni in new tab page)
+// Restore the new tab page (workaround to show Ally in new tab page)
 function restoreNewTab() {
 	getCurrentTab().then((response) => {
 		chrome.tabs.create({
@@ -210,7 +210,7 @@ function restoreNewTab() {
 	})
 }
 
-const resetOmni = () => {
+const resetAlly = () => {
 	clearActions();
 	getTabs();
 	getBookmarks();
@@ -222,9 +222,9 @@ const resetOmni = () => {
 }
 
 // Check if tabs have changed and actions need to be fetched again
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => resetOmni());
-chrome.tabs.onCreated.addListener((tab) => resetOmni());
-chrome.tabs.onRemoved.addListener((tabId, changeInfo) => resetOmni());
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => resetAlly());
+chrome.tabs.onCreated.addListener((tab) => resetAlly());
+chrome.tabs.onRemoved.addListener((tabId, changeInfo) => resetAlly());
 
 // Get tabs to populate in the actions
 const getTabs = () => {
@@ -359,7 +359,7 @@ const removeBookmark = (bookmark) => {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 	switch (message.request) {
 		case "get-actions":
-			resetOmni();
+			resetAlly();
 			sendResponse({ actions: actions });
 			break;
 		case "switch-tab":
@@ -481,13 +481,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 		case "restore-new-tab":
 			restoreNewTab();
 			break;
-		case "close-omni":
+		case "close-ally":
 			getCurrentTab().then((response) => {
-				chrome.tabs.sendMessage(response.id, { request: "close-omni" });
+				chrome.tabs.sendMessage(response.id, { request: "close-ally" });
 			});
 			break;
 	}
 });
 
 // Get actions
-resetOmni();
+resetAlly();
