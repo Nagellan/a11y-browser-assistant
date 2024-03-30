@@ -66,7 +66,8 @@
 		"browsingData",
 		"history",
 		"scripting",
-		"search"
+		"search",
+		"tts"
 	],
 	"host_permissions": [
 		"https://www.googleapis.com/*",

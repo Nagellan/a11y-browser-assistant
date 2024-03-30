@@ -61,6 +61,7 @@ chrome.action.onClicked.addListener((tab) => {
 // Listen for the open ally shortcut
 chrome.commands.onCommand.addListener((command) => {
 	if (command === "open-ally") {
+
 		getCurrentTab().then((response) => {
 			if (!response.url.includes("chrome://") && !response.url.includes("chrome.google.com")) {
 				chrome.tabs.sendMessage(response.id, { request: "open-ally" });

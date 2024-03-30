@@ -3,6 +3,7 @@ var isOpen = false;
 document.onkeyup = (e) => {
 	if (e.key == "Escape" && isOpen) {
 		chrome.runtime.sendMessage({ request: "close-ally" })
+		window.speechSynthesis.cancel()
 	}
 }
 
@@ -112,13 +113,32 @@ $(document).ready(() => {
 		} else {
 			isOpen = false;
 			$("#ally-extension").addClass("ally-closing");
+			window.speechSynthesis.cancel()
 		}
 	}
 
-	// Hover over an action in the ally
-	function hoverItem() {
-		$(".ally-item-active").removeClass("ally-item-active");
-		$(this).addClass("ally-item-active");
+	function getActionByElement(element) {
+		return actions[element.attr("data-index")]
+	}
+
+	function speak(text, queue = false) {
+		if (!queue) {
+			window.speechSynthesis.cancel()
+		}
+
+		window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+	}
+
+	function speakAction(action, queue = false) {
+		speak(action.title + '. ' + action.desc, queue);
+	}
+
+	function selectActiveItem(element) {
+		element.addClass("ally-item-active")
+
+		// window.speechSynthesis.cancel()
+		// speak('Current action is...', true)
+		// speakAction(getActionByElement(element), true);
 	}
 
 	// Search for an action in the ally
@@ -144,14 +164,16 @@ $(document).ready(() => {
 
 		$(".ally-extension #ally-results").html($("#ally-extension #ally-list .ally-item:visible").length + " results");
 		$(".ally-item-active").removeClass("ally-item-active");
-		$(".ally-extension #ally-list .ally-item:visible").first().addClass("ally-item-active");
+		selectActiveItem($(".ally-extension #ally-list .ally-item:visible").first());
 	}
 
 	// Handle actions from the ally
 	function handleAction(e) {
-		var action = actions[$(".ally-item-active").attr("data-index")];
+		var action = getActionByElement($(".ally-item-active"));
 		chrome.runtime.sendMessage({ request: action.action, tab: action, query: $(".ally-extension input").val() });
 	}
+
+
 
 	// Check which keys are down
 	var down = [];
@@ -161,18 +183,32 @@ $(document).ready(() => {
 		if (down[38]) {
 			// Up key
 			if ($(".ally-item-active").prevAll("div").not(":hidden").first().length) {
-				var previous = $(".ally-item-active").prevAll("div").not(":hidden").first();
 				$(".ally-item-active").removeClass("ally-item-active");
-				previous.addClass("ally-item-active");
+
+				var previous = $(".ally-item-active").prevAll("div").not(":hidden").first();
+
+				selectActiveItem(previous);
 				previous[0].scrollIntoView({ block: "nearest", inline: "nearest" });
+
+				var action = getActionByElement(previous);
+				speakAction(action);
+			} else {
+				speak('There are no actions above the current one')
 			}
 		} else if (down[40]) {
 			// Down key
 			if ($(".ally-item-active").nextAll("div").not(":hidden").first().length) {
-				var next = $(".ally-item-active").nextAll("div").not(":hidden").first();
 				$(".ally-item-active").removeClass("ally-item-active");
-				next.addClass("ally-item-active");
+
+				var next = $(".ally-item-active").nextAll("div").not(":hidden").first();
+
+				selectActiveItem(next)
 				next[0].scrollIntoView({ block: "nearest", inline: "nearest" });
+
+				var action = getActionByElement(next);
+				speakAction(action);
+			} else {
+				speak('There are no actions below the current one')
 			}
 		} else if (down[27] && isOpen) {
 			// Esc key
@@ -205,6 +241,7 @@ $(document).ready(() => {
 			if (isOpen) {
 				closeAlly();
 			} else {
+				speak('You opened Ally, your assistant for internet browsing. Start typing your site action request for Ally to perform. Use arrows down and up to check other actions. Press enter to perform the action.')
 				openAlly();
 			}
 		} else if (message.request == "close-ally") {
@@ -212,8 +249,6 @@ $(document).ready(() => {
 		}
 	});
 
-	$(document).on("mouseover", ".ally-extension .ally-item:not(.ally-item-active)", hoverItem);
 	$(document).on("keyup", ".ally-extension input", handleInput);
 	$(document).on("click", ".ally-item-active", handleAction);
-	$(document).on("click", ".ally-extension #ally-overlay", closeAlly);
 });
