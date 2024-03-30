@@ -34,20 +34,43 @@
 				"<all_urls>"
 			],
 			"run_at": "document_end",
-			"js": ["focus.js", "jquery.js", "content.js", "virtualized-list.min.js"],
-			"css": ["content.css"]
+			"js": [
+				"focus.js",
+				"jquery.js",
+				"content.js",
+				"virtualized-list.min.js"
+			],
+			"css": [
+				"content.css"
+			]
 		}
 	],
 	"web_accessible_resources": [
 		{
-			"resources":  ["content.html", "newtab.html", "assets/*", "popup.css", "popup.js"],
-			"matches": ["<all_urls>"]
+			"resources": [
+				"content.html",
+				"newtab.html",
+				"assets/*",
+				"popup.css",
+				"popup.js"
+			],
+			"matches": [
+				"<all_urls>"
+			]
 		}
 	],
 	"permissions": [
-		"tabs", "activeTab", "bookmarks", "browsingData", "history", "scripting", "search"
+		"tabs",
+		"activeTab",
+		"bookmarks",
+		"browsingData",
+		"history",
+		"scripting",
+		"search"
 	],
 	"host_permissions": [
-		"https://www.googleapis.com/*", "https://gstatic.com/*", "*://*/*"
+		"https://www.googleapis.com/*",
+		"https://gstatic.com/*",
+		"*://*/*"
 	]
 }
