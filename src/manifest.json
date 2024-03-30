@@ -1,8 +1,8 @@
 {
-	"name": "Omni - Bookmark, History, & Tab Manager",
-	"description": "Supercharge Chrome with commands, shortcuts, and more",
+	"name": "a11y-browser-assistant",
+	"description": "An indispensable assistant for visually impaired and blind people in their daily internet browsing",
 	"offline_enabled": true,
-	"version": "1.4.7",
+	"version": "0.0.1",
 	"manifest_version": 3,
 	"action": {
 		"icons": {
@@ -17,10 +17,10 @@
 		"128": "assets/logo-128.png"
 	},
 	"commands": {
-		"open-omni": {
+		"open-ally": {
 			"suggested_key": {
-				"default": "Ctrl+Shift+K",
-				"mac": "Command+Shift+K"
+				"default": "Ctrl+Shift+H",
+				"mac": "Command+Shift+H"
 			},
 			"description": "Open command menu"
 		}
@@ -34,20 +34,44 @@
 				"<all_urls>"
 			],
 			"run_at": "document_end",
-			"js": ["focus.js", "jquery.js", "content.js", "virtualized-list.min.js"],
-			"css": ["content.css"]
+			"js": [
+				"focus.js",
+				"jquery.js",
+				"content.js",
+				"virtualized-list.min.js"
+			],
+			"css": [
+				"content.css"
+			]
 		}
 	],
 	"web_accessible_resources": [
 		{
-			"resources":  ["content.html", "newtab.html", "assets/*", "popup.css", "popup.js"],
-			"matches": ["<all_urls>"]
+			"resources": [
+				"content.html",
+				"newtab.html",
+				"assets/*",
+				"popup.css",
+				"popup.js"
+			],
+			"matches": [
+				"<all_urls>"
+			]
 		}
 	],
 	"permissions": [
-		"tabs", "activeTab", "bookmarks", "browsingData", "history", "scripting", "search"
+		"tabs",
+		"activeTab",
+		"bookmarks",
+		"browsingData",
+		"history",
+		"scripting",
+		"search",
+		"tts"
 	],
 	"host_permissions": [
-		"https://www.googleapis.com/*", "https://gstatic.com/*", "*://*/*"
+		"https://www.googleapis.com/*",
+		"https://gstatic.com/*",
+		"*://*/*"
 	]
 }
